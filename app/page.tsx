@@ -1,23 +1,29 @@
-import { SiteHeader } from "@/components/site-header"
-import { Hero } from "@/components/hero"
-import { Services } from "@/components/services"
-import { Approach } from "@/components/approach"
-import { Process } from "@/components/process"
-import { ContactCTA } from "@/components/contact-cta"
-import { SiteFooter } from "@/components/site-footer"
+import { Contact } from '@/components/contact'
+import { Hero } from '@/components/hero'
+import { Manifesto } from '@/components/manifesto'
+import { Marquee } from '@/components/marquee'
+import { Process } from '@/components/process'
+import { Services } from '@/components/services'
+import { SiteFooter } from '@/components/site-footer'
+import { SiteHeader } from '@/components/site-header'
+import { Studio } from '@/components/studio'
+import { Work } from '@/components/work'
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <>
       <SiteHeader />
-      <main className="flex-1">
+      <main id="main">
         <Hero />
+        <Marquee />
+        <Manifesto />
         <Services />
-        <Approach />
-        {/* <Process /> */}
-        <ContactCTA />
+        <Work />
+        <Process />
+        <Studio />
+        <Contact />
       </main>
       <SiteFooter />
-    </div>
+    </>
   )
 }
