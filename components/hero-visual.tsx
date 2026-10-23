@@ -87,9 +87,9 @@ export function HeroVisual() {
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let lowPerf = document.documentElement.classList.contains('perf-low')
-    const lowPower =
-      window.matchMedia('(max-width: 767px)').matches ||
-      (navigator.hardwareConcurrency || 8) <= 4
+    // Viewport only: navigator.hardwareConcurrency is farbled by browsers with
+    // fingerprinting protection, so it cannot describe the actual device.
+    const lowPower = window.matchMedia('(max-width: 767px)').matches
 
     const nodeCount = lowPower ? 96 : 132
     const segments = lowPower ? 68 : 92
@@ -103,7 +103,10 @@ export function HeroVisual() {
     }
     const edges = buildEdges(sphere)
     const pulseEdges = edges.filter((edge) => edge.pulse === 1).slice(0, lowPower ? 4 : 6)
-    const frameInterval = 1000 / (lowPower ? 24 : 30)
+    // The globe keeps turning even in low-performance mode: a screenful of dots
+    // at 12fps costs less than losing the site's signature motion altogether.
+    const frameRate = () => (lowPerf ? 12 : lowPower ? 24 : 30)
+    let frameInterval = 1000 / frameRate()
 
     const makeGlow = (mid: string) => {
       const sprite = document.createElement('canvas')
@@ -153,7 +156,7 @@ export function HeroVisual() {
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      if (reduce || lowPerf) draw(performance.now())
+      if (reduce) draw(performance.now())
     }
 
     const pointerMove = (event: PointerEvent) => {
@@ -165,7 +168,7 @@ export function HeroVisual() {
 
     const draw = (now: number) => {
       if (!running || !inView || document.hidden) return
-      if (!reduce && !lowPerf) raf = window.requestAnimationFrame(draw)
+      if (!reduce) raf = window.requestAnimationFrame(draw)
 
       // 30–45fps is plenty for a slowly rotating background object and leaves
       // the main thread available for scrolling and the custom cursor.
@@ -344,23 +347,30 @@ export function HeroVisual() {
       if (document.hidden) {
         window.cancelAnimationFrame(raf)
         raf = 0
-      } else if (!reduce && inView) {
+      } else if (inView) {
         lastDraw = 0
-        raf = window.requestAnimationFrame(draw)
+        if (reduce) {
+          raf = 0
+          draw(performance.now())
+        } else {
+          raf = window.requestAnimationFrame(draw)
+        }
       }
     }
 
     const io = new IntersectionObserver(
       (entries) => {
         inView = entries[0].isIntersecting
-        if (inView && !reduce && !lowPerf) {
+        if (inView) {
           lastDraw = 0
           window.cancelAnimationFrame(raf)
-          raf = window.requestAnimationFrame(draw)
-        } else if (inView && (reduce || lowPerf)) {
-          raf = 0
-          draw(performance.now())
-        } else if (!inView) {
+          if (reduce) {
+            raf = 0
+            draw(performance.now())
+          } else {
+            raf = window.requestAnimationFrame(draw)
+          }
+        } else {
           window.cancelAnimationFrame(raf)
           raf = 0
         }
@@ -376,10 +386,15 @@ export function HeroVisual() {
 
     resize()
     const onLowPerf = () => {
+      if (lowPerf) return
       lowPerf = true
-      window.cancelAnimationFrame(raf)
-      raf = 0
-      draw(performance.now())
+      frameInterval = 1000 / frameRate()
+      // Slow the loop down instead of stopping it. The globe must not go dead
+      // just because the page was flagged as low-performance.
+      if (!reduce && !document.hidden && inView && !raf) {
+        lastDraw = 0
+        raf = window.requestAnimationFrame(draw)
+      }
     }
 
     window.addEventListener('pointermove', pointerMove, { passive: true })

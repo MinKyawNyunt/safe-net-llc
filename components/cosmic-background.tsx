@@ -112,8 +112,10 @@ function Starfield() {
     const compactQuery = window.matchMedia('(max-width: 767px)')
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-    const lowPower =
-      compactQuery.matches || (navigator.hardwareConcurrency || 8) <= 4
+    // Viewport only: navigator.hardwareConcurrency is farbled by browsers with
+    // fingerprinting protection (Brave Shields), so it cannot describe the
+    // device and previously downgraded capable machines.
+    const lowPower = compactQuery.matches
     let lowPerf = document.documentElement.classList.contains('perf-low')
     let reduceMotion = motionQuery.matches
     let quality = measureQuality(lowPower, lowPerf)
