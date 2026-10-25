@@ -775,7 +775,7 @@ const projects = [
   },
   {
     index: '03',
-    name: 'Grande Whisky Museum',
+    name: 'Whisky Museum Portal',
     category: 'Culture',
     year: '2026',
     description:
@@ -785,7 +785,7 @@ const projects = [
   },
   {
     index: '04',
-    name: 'Bay Of Andaman',
+    name: 'Travel And Tour',
     category: 'Travel',
     year: '2026',
     description:
@@ -795,7 +795,7 @@ const projects = [
   },
   {
     index: '05',
-    name: 'Rose Hill Hospital',
+    name: 'Hospital Portal',
     category: 'Healthcare',
     year: '2026',
     description:
@@ -805,7 +805,7 @@ const projects = [
   },
   {
     index: '06',
-    name: 'Asahi Sushi',
+    name: 'Restaurant Portal',
     category: 'Hospitality',
     year: '2026',
     description:
