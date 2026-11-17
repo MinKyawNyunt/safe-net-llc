@@ -48,7 +48,7 @@ export function Contact() {
     setErrors({})
     setStatus('loading')
     try {
-      const response = await fetch('https://n8n.safenetonlinestore.com/webhook/send-email', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fields),
